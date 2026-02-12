@@ -1,25 +1,23 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
+        stage('Nettoyage') {
             steps {
-                echo 'Récupération du code depuis GitHub...'
-                checkout scm
+                echo 'Suppression de l\'ancien conteneur si il existe...'
+                // Le "|| true" évite que le build plante si le conteneur n'existe pas encore
+                sh 'docker rm -f mon-site-web || true'
             }
         }
-        stage('Build & Test Docker') {
+        stage('Build Image') {
             steps {
-                echo 'Vérification de Docker...'
-                sh 'docker --version'
+                echo 'Construction de l\'image Docker...'
+                sh 'docker build -t mon-image-web:v1 .'
             }
         }
-        stage('Test Ansible') {
+        stage('Déploiement') {
             steps {
-                echo 'Vérification d\'Ansible...'
-                // Si tu ne l'as pas encore installé, ce stage échouera, 
-                // mais on saura pourquoi !
-                sh 'ansible --version'
+                echo 'Lancement du conteneur sur le port 9090...'
+                sh 'docker run -d --name mon-site-web -p 9090:80 mon-image-web:v1'
             }
         }
     }
