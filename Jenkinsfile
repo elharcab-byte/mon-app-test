@@ -14,3 +14,24 @@ pipeline {
         }
     }
 }
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Récupération du code...'
+            }
+        }
+        stage('Test Docker') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+        stage('Test Ansible') {
+            steps {
+                // On vérifie si Ansible est installé
+                sh 'ansible --version'
+            }
+        }
+    }
+}
