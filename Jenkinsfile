@@ -1,35 +1,24 @@
 pipeline {
     agent any
+
     stages {
         stage('Checkout') {
             steps {
                 echo 'Récupération du code depuis GitHub...'
+                checkout scm
             }
         }
-        stage('Build') {
+        stage('Build & Test Docker') {
             steps {
-                echo 'Construction de l\'image Docker...'
-                sh 'docker --version' 
-            }
-        }
-    }
-}
-pipeline {
-    agent any
-    stages {
-        stage('Checkout') {
-            steps {
-                echo 'Récupération du code...'
-            }
-        }
-        stage('Test Docker') {
-            steps {
+                echo 'Vérification de Docker...'
                 sh 'docker --version'
             }
         }
         stage('Test Ansible') {
             steps {
-                // On vérifie si Ansible est installé
+                echo 'Vérification d\'Ansible...'
+                // Si tu ne l'as pas encore installé, ce stage échouera, 
+                // mais on saura pourquoi !
                 sh 'ansible --version'
             }
         }
