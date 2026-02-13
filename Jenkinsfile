@@ -5,11 +5,10 @@ pipeline {
         pollSCM('* * * * *')
     }
 
-    stages {
-        stage('Nettoyage Global') {
+    stage('Nettoyage Global') {
             steps {
-                // On nettoie tout pour repartir propre
-                sh 'docker rm -f site-staging site-prod || true'
+                // On supprime TOUT ce qui pourrait bloquer les ports 9090 et 9091
+                sh 'docker rm -f site-staging site-prod mon-site-web || true'
             }
         }
 
