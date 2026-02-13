@@ -1,14 +1,12 @@
 ---
-- name: Test de disponibilite du site
+- name: Test de disponibilite
   hosts: localhost
   connection: local
   tasks:
-    - name: Verifier que le serveur Nginx repond
+    - name: Verifier le port specifie
       uri:
-        # On utilise l'IP spéciale de Docker pour parler à l'hôte
-        url: http://172.17.0.1:9090
+        # On utilise la variable target_port passée par Jenkins
+        url: "http://172.17.0.1:{{ target_port }}"
         status_code: 200
-      register: result
-      until: result.status == 200
       retries: 5
       delay: 3
