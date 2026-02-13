@@ -5,9 +5,10 @@ pipeline {
         pollSCM('* * * * *')
     }
 
-    stage('Nettoyage Global') {
+    stages {
+        stage('Nettoyage Global') {
             steps {
-                // On supprime TOUT ce qui pourrait bloquer les ports 9090 et 9091
+                // On vire tous les conteneurs qui pourraient bloquer les ports 9090 et 9091
                 sh 'docker rm -f site-staging site-prod mon-site-web || true'
             }
         }
@@ -28,14 +29,12 @@ pipeline {
         stage('Vérification Ansible') {
             steps {
                 echo 'Ansible teste le Staging...'
-                // Attention : on teste bien le port 9091 ici !
                 sh 'ansible-playbook test_site.yml --extra-vars "target_port=9091"'
             }
         }
 
         stage('Validation Manuelle') {
             steps {
-                // Jenkins va s'arrêter ici et attendre ton clic
                 input message: "Est-ce que le site en Staging est OK ? (Vérifiez sur le port 9091)", ok: "Déployer en PROD"
             }
         }
@@ -43,6 +42,7 @@ pipeline {
         stage('Déploiement Production') {
             steps {
                 echo 'Déploiement en PRODUCTION (Port 9090)...'
+                // On s'assure encore une fois que le port est libre (sécurité double)
                 sh 'docker rm -f site-prod || true'
                 sh 'docker run -d --name site-prod -p 9090:80 mon-image-web:v1'
             }
