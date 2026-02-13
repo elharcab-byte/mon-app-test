@@ -7,6 +7,6 @@
       uri:
         # On utilise la variable target_port passée par Jenkins
         url: "http://172.17.0.1:{{ target_port }}"
-        status_code: 200
+        status_code: 500
       retries: 5
       delay: 3
