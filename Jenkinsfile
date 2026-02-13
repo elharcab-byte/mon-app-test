@@ -52,6 +52,13 @@ pipeline {
                 sh 'docker stats --no-stream'
             }
         }
+        stage('Nettoyage Post-Déploiement') {
+            steps {
+                echo 'Fermeture de l\'environnement de Staging devenu inutile...'
+                // On garde la Prod, mais on éteint le Staging
+                sh 'docker rm -f site-staging || true'
+            }
+        }
     }
 
     post {
