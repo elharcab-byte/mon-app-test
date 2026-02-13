@@ -8,7 +8,6 @@ pipeline {
     stages {
         stage('Nettoyage Global') {
             steps {
-                // On vire tous les conteneurs qui pourraient bloquer les ports 9090 et 9091
                 sh 'docker rm -f site-staging site-prod mon-site-web || true'
             }
         }
@@ -21,31 +20,40 @@ pipeline {
 
         stage('Déploiement Staging') {
             steps {
-                echo 'Déploiement en RECETTE (Port 9091)...'
                 sh 'docker run -d --name site-staging -p 9091:80 mon-image-web:v1'
             }
         }
 
         stage('Vérification Ansible') {
             steps {
-                echo 'Ansible teste le Staging...'
                 sh 'ansible-playbook test_site.yml --extra-vars "target_port=9091"'
             }
         }
 
         stage('Validation Manuelle') {
             steps {
-                input message: "Est-ce que le site en Staging est OK ? (Vérifiez sur le port 9091)", ok: "Déployer en PROD"
+                input message: "Est-ce que le site en Staging est OK ?", ok: "Déployer en PROD"
             }
         }
 
         stage('Déploiement Production') {
             steps {
-                echo 'Déploiement en PRODUCTION (Port 9090)...'
-                // On s'assure encore une fois que le port est libre (sécurité double)
                 sh 'docker rm -f site-prod || true'
                 sh 'docker run -d --name site-prod -p 9090:80 mon-image-web:v1'
             }
+        }
+    }
+
+    // --- LE NOUVEAU BLOC DE NOTIFICATION ---
+    post {
+        success {
+            echo '✅ SUCCÈS : L\'application est en ligne sur http://localhost:9090'
+        }
+        failure {
+            echo '❌ ÉCHEC : Le pipeline s\'est arrêté. Vérifiez les logs pour corriger l\'erreur.'
+        }
+        aborted {
+            echo '⚠️ ANNULÉ : Le déploiement en production a été refusé.'
         }
     }
 }
