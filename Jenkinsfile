@@ -54,6 +54,8 @@ pipeline {
         }
         aborted {
             echo '⚠️ ANNULÉ : Le déploiement en production a été refusé.'
+            echo '⚠️ Nettoyage automatique suite à l\'échec...'
+            sh 'docker rm -f site-staging || true'
         }
     }
 }
