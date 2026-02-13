@@ -41,6 +41,12 @@ pipeline {
                 sh 'docker rm -f site-prod || true'
                 sh 'docker run -d --name site-prod -p 9090:80 mon-image-web:v1'
             }
+        stage('Monitoring Flash') {
+            steps {
+                echo '--- Statistiques des conteneurs actifs ---'
+                sh 'docker stats --no-stream'
+            }
+        }
         }
     }
 
